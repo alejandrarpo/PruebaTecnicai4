@@ -1,19 +1,67 @@
-plugins {
-    id 'java'
-}
-
-group 'com.perurail'
-version '1.0'
-
 repositories {
+    mavenLocal()
+    jcenter()
     mavenCentral()
 }
+buildscript {
+    repositories {
+        mavenLocal()
+        jcenter()
+    }
+    dependencies {
+        classpath("net.serenity-bdd:serenity-gradle-plugin:2.2.2")
+    }
+}
+apply plugin: 'java'
+apply plugin: 'eclipse'
+apply plugin: 'idea'
+apply plugin: 'net.serenity-bdd.aggregator'
+
+ext {
+
+    serenityCoreVersion = '2.3.33'
+    serenityCucumberVersion = '2.3.33'
+    junitVersion = '4.13.1'
+    lombokVersion = '1.18.1'
+    assertJVersion = '3.8.0'
+    fakerVersion = '1.0.2'
+    jacksonVersion = '2.12.2'
+    slf4jVersion = '1.7.25'
+    cucumberVersion = '4.2.0'
+}
+
 
 dependencies {
-    testImplementation 'org.junit.jupiter:junit-jupiter-api:5.7.0'
-    testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.7.0'
+    testImplementation('junit:junit:4.13.2')
+    testImplementation('org.assertj:assertj-core:3.22.0')
+    testImplementation('org.slf4j:slf4j-simple:1.7.36')
+    implementation 'net.serenity-bdd:serenity-core:2.3.33'
+    implementation 'net.serenity-bdd:serenity-junit:2.3.33'
+    implementation 'net.serenity-bdd:serenity-cucumber6:2.3.33'
+    implementation 'net.serenity-bdd:serenity-screenplay:2.3.33'
+    implementation 'net.serenity-bdd:serenity-screenplay-webdriver:2.3.33'
+    implementation 'net.serenity-bdd:serenity-screenplay-rest:2.3.33'
+    testImplementation('io.github.bonigarcia:webdrivermanager:5.1.0')
+    implementation group: 'com.fasterxml.jackson.datatype', name: 'jackson-datatype-jsr310', version: '2.13.0-rc1'
+    implementation group: 'org.yaml', name: 'snakeyaml', version: '1.17'
+    implementation group: 'org.json', name: 'json', version: '20210307'
+    testImplementation group: 'com.oracle', name: 'ojdbc6', version: '11.2.0.4.0-atlassian-hosted'
+    testImplementation group: 'org.hamcrest', name: 'hamcrest-all', version: '1.3'
+    implementation 'org.postgresql:postgresql:42.3.2'
 }
 
-test {
-    useJUnitPlatform()
+
+task cucumber() {
+    dependsOn assemble, compileTestJava
+    doLast {
+        javaexec {
+            main = "cucumber.api.cli.Main"
+            classpath = configurations.cucumberRuntime + sourceSets.main.output + sourceSets.test.output
+            args = ['--plugin', 'pretty', '--glue', 'StepDefinitions', 'src/test/resources/features']
+        }
+    }
 }
+
+gradle.startParameter.continueOnFailure = true
+
+test.finalizedBy(aggregate)

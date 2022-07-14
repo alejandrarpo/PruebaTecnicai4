@@ -4,6 +4,7 @@ Característica: Yo como usuario de perurail
   Para comprar un tiquete
 
 Escenario: Acceso a compra en linea exitoso
-  Dado que estoy en la home de perurail
-  Cuando doy click en el icono de  compra en linea
+  Cuando  estoy en la home de perurail
   Entonces el sistema me muestra un formulario booking
+
+
